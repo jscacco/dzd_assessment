@@ -65,8 +65,8 @@ def problem1a():
     k_mer_freqs = count_k_mers(seqs, k)
 
     # View k_mer_freqs
-    # for k in k_mer_freqs:
-    #    print("\nk-mer:", k, "\nfrequency:", k_mer_freqs[k])
+    for k in k_mer_freqs:
+       print("\nk-mer:", k, "\nfrequency:", k_mer_freqs[k])
 
     # Make sure we aren't missing any. (this works bc all seqs are same length)
     # Compute expected number of k_mers
@@ -144,8 +144,7 @@ def enter_kmer(conn, kmer_info):
     cur = conn.cursor()
     cur.execute(sql, kmer_info)
     conn.commit()
-    return cur.lastrowid
-    
+
     
 def fill_kmer_table(kmer_freqs, database):
     """Given a dict of kmer freqs and a database file, fill the kmer table
@@ -156,8 +155,7 @@ def fill_kmer_table(kmer_freqs, database):
     with conn:
         for kmer in kmer_freqs:
             kmer_info = (kmer, kmer_freqs[kmer])
-            # (Not sure if we need this line, but I'm gonna stick with the tutorial
-            kmer_id = enter_kmer(conn, kmer_info)
+            enter_kmer(conn, kmer_info)
 
     conn.close()
 
@@ -165,6 +163,7 @@ def fill_kmer_table(kmer_freqs, database):
 def problem1b():
     """Synthesizes problem 1b."""
 
+    # No need to call this after the first time
     # create_kmer_table()
     
     k = 21
@@ -180,6 +179,7 @@ def problem1b():
 
     print("Filling table (this may take a while)...")
     fill_kmer_table(k_mer_freqs, database)
+    print("Done filling table.")
 
     
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -227,10 +227,14 @@ def problem2():
     kseq = ""
     seq = ""
 
+    # Modify these to your heart's content for random test cases
+    seq_len = 2000
+    kseq_len = 5
+    
     # Test on arbitrarily large kseq and seq (less likely to have matches the longer
     # kseq is, though)
-    for i in range(2000):
-        if i < 5:
+    for i in range(seq_len):
+        if i < k_seq_len:
             kseq += random.choice(BASES)
         seq += random.choice(BASES)
 
@@ -242,12 +246,17 @@ def problem2():
     for m in matches:
         print(m)
 
-    
-    
+        
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+#                                          Main                                             #
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+
 def main():
     # problem1a()
     # problem1b()
     problem2()
+    # print(match("ACGT", "ACACACGT"))
     
     
 if __name__ == "__main__":
