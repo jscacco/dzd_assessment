@@ -2,7 +2,12 @@
 # Date: 9/15/21
 # File: solutions.py
 
-import sys
+import sqlite3
+from sqlite3 import Error
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+#                                        Problem 1a                                         #
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 def extract_seqs(filename):
     """Given a fastq file, return a list of the DNA sequences in that file."""
@@ -50,6 +55,8 @@ def count_k_mers(seqs, k):
                 
 
 def problem1a():
+    """Synthesizes problem 1a"""
+    
     k = 21
     seqs = extract_seqs("SP1.fastq")
     k_mer_freqs = count_k_mers(seqs, k)
@@ -72,9 +79,103 @@ def problem1a():
 
     assert(total_k_mers_expected == total_k_mers_actual)
 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+#                                        Problem 1b                                         #
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+
+def create_connection(db_file):
+    """Creates a new database file. Copied from 
+       https://www.sqlitetutorial.net/sqlite-python/creating-database/"""
+
+    conn = None
+    try:
+        # remember to close this connection!
+        conn = sqlite3.connect(db_file)
+        print(sqlite3.version)
+        
+    except Error as e:
+        print(e)
+
+    return conn
+
+
+def create_table(conn, create_table_sql):
+    """Creates a table from the create_table_sql statement. Copied from tutorial."""
+    try:
+        c = conn.cursor()
+        c.execute(create_table_sql)
+    except Error as e:
+        print(e)
+
+
+def create_kmer_table():
+    """Creates the kmer table (doesn't need to be called after the first time)."""
+    
+    sql_create_kmer_table = \
+        """ CREATE TABLE IF NOT EXISTS kmer (
+        k_mer text PRIMARY KEY,
+        count integer NOT NULL
+        ); """
+
+    # Create connection
+    database = "data.db"
+    conn = create_connection(database)
+
+    # Create table
+    if conn is not None:
+        create_table(conn, sql_create_kmer_table)
+    else:
+        print("Error! Cannot create the database connection.")
+
+    conn.close()
+
+
+def enter_kmer(conn, kmer_info):
+    """Given a Connection object and a tuple representing a kmer and its frequency,
+       add that info into the kmer table. Returns the rowid of that info."""
+
+    sql = \
+        """ INSERT INTO kmer(k_mer,count)
+        VALUES(?,?) """
+
+    cur = conn.cursor()
+    cur.execute(sql, kmer_info)
+    conn.commit()
+    return cur.lastrowid
+    
+    
+def fill_kmer_table(kmer_freqs, database):
+    """Given a dict of kmer freqs and a database file, fill the kmer table
+       in that file with the info stored in the dict."""
+
+    conn = create_connection(database)
+    
+    with conn:
+        for kmer in kmer_freqs:
+            kmer_info = (kmer, kmer_freqs[kmer])
+            # (Not sure if we need this line, but I'm gonna stick with the tutorial
+            kmer_id = enter_kmer(conn, kmer_info)
+
+    conn.close()
+    
+def problem1b():
+    """Synthesizes problem 1b."""
+
+    # create_kmer_table()
+    
+    k = 21
+    seqs = extract_seqs("SP1.fastq")
+    k_mer_freqs = count_k_mers(seqs, k)
+    database = "data.db"
+
+    print("Filling table (this may take a while)...")
+    fill_kmer_table(k_mer_freqs, database)
+    
     
 def main():
-    problem1a()
+        
+    problem1b()
 
 if __name__ == "__main__":
     main()
