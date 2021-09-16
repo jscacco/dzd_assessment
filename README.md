@@ -3,7 +3,7 @@ Coding assessment for Day Zero Diagnostics
 
 ### "How did you test the code for each problem?"
 
-For problem 1a (count all the 21-mers within the sequences), I tested in two ways. First, I wanted to ensure that my indices were correct and that I was considering each kmer in the sequence (not leaving any off). To do this, I simply used small test cases and manually confirmed that I was seeing all the kmers I expected. Then, to ensure that my frequency counts were accurate, I added a few lines to the function problem1a() which computed the expected number of frequencies and the actual number.
+For problem 1a (count all the 21-mers within the sequences), I tested in two ways. First, I wanted to ensure that my indices were correct and that I was considering each kmer in the sequence (not leaving any off). To do this, I simply used small test cases and manually confirmed that I was seeing all the kmers I expected. Then, to ensure that my frequency counts were accurate, I added a few lines to the function problem1a() which computed the expected number of frequencies and the actual number, then compared the two.
 
 For problem 1b (working with SQLite), I simply utilized the testing commands described in the provided SQLite tutorial. I included a few of those lines of code, commented out, in the function problem1b(). Trusting that my initial k-mer frequency table was accurate (I had no reason to believe it wasn't based on the testing from above), I further trusted that the SQLite command accurately added the information into the kmer table (...something something Law of Commutativity :D).
 
