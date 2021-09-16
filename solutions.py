@@ -4,6 +4,9 @@
 
 import sqlite3
 from sqlite3 import Error
+import random
+
+BASES = ["A", "C", "G", "T"]
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 #                                        Problem 1a                                         #
@@ -44,7 +47,7 @@ def count_k_mers(seqs, k):
         # the length of the seq
         if k <= len(s):
             # i represents the starting index of each k-mer in the seq
-            for i in range(len(s) - k):
+            for i in range(len(s) - k + 1):
                 k_mer = s[i:i+k]
                 if k_mer in k_mer_freqs:
                     k_mer_freqs[k_mer] += 1
@@ -69,7 +72,7 @@ def problem1a():
     # Compute expected number of k_mers
     num_seqs = len(seqs)
     seq_len = len(seqs[0])
-    k_mers_per_seq = seq_len - k
+    k_mers_per_seq = seq_len - k + 1
     total_k_mers_expected = num_seqs * k_mers_per_seq
 
     # Compute acutal number of k_mers
@@ -82,7 +85,6 @@ def problem1a():
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 #                                        Problem 1b                                         #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-
 
 def create_connection(db_file):
     """Creates a new database file. Copied from 
@@ -158,6 +160,7 @@ def fill_kmer_table(kmer_freqs, database):
             kmer_id = enter_kmer(conn, kmer_info)
 
     conn.close()
+
     
 def problem1b():
     """Synthesizes problem 1b."""
@@ -169,13 +172,83 @@ def problem1b():
     k_mer_freqs = count_k_mers(seqs, k)
     database = "data.db"
 
+    # This code was tested using the command-line sqlite3 commands described in the tutorial:
+    # >sqlite3 data.sb
+    # sqlite> .header on
+    # sqlite> .mode column
+    # sqlite> SELECT * from kmer;
+
     print("Filling table (this may take a while)...")
     fill_kmer_table(k_mer_freqs, database)
+
+    
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+#                                        Problem 2                                          #
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+def num_letters_diff(first, second):
+    """Given two strings of the same length (first and second), return the number of 
+       letters by which they differ."""
+
+    assert(len(first) == len(second))
+
+    num_diff = 0
+    
+    for i in range(len(first)):
+        if first[i] != second[i]:
+            num_diff += 1
+
+    return num_diff
+
+
+def match(kseq, seq):
+    """Given a k-mer and a DNA sequency longer than k, return a set containing
+       all k-mers in seq that match kseq with at most two letters different."""
+
+    matches = []
+    k = len(kseq)
+
+    # Look at all possible k-mers in seq and see how many letters they differ from kseq
+    for i in range(len(seq) - k + 1):
+        k_mer = seq[i:i+k]
+        if k_mer not in matches and num_letters_diff(kseq, k_mer) <= 2:
+            matches.append(k_mer)
+
+    # Convert the list to a set and return
+    return set(matches)
+
+
+def problem2():
+    """Synthesizes problem 2."""
+
+    # kseq = "ACGT"
+    # seq = "ACACACGT"
+
+    kseq = ""
+    seq = ""
+
+    # Test on arbitrarily large kseq and seq (less likely to have matches the longer
+    # kseq is, though)
+    for i in range(2000):
+        if i < 5:
+            kseq += random.choice(BASES)
+        seq += random.choice(BASES)
+
+    print("kseq:", kseq)
+    print("seq:", seq)
+    
+    matches = match(kseq, seq)
+    print("matches:")
+    for m in matches:
+        print(m)
+
     
     
 def main():
-        
-    problem1b()
-
+    # problem1a()
+    # problem1b()
+    problem2()
+    
+    
 if __name__ == "__main__":
     main()
